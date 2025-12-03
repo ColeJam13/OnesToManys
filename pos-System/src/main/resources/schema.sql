@@ -13,20 +13,20 @@ CREATE TABLE IF NOT EXISTS orders (                            -- only create a 
     notes TEXT                                                 -- notes = column name / TEXT = store infinite text / default will be null
 );
 
-CREATE TABLE IF NOT EXISTS items (
-    item_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    order_id INTEGER NOT NULL, 
-    item_name VARCHAR(100) NOT NULL,
-    item_quantity INTEGER NOT NULL DEFAULT 1,
-    item_price DECIMAL(10,2) NOT NULL,
-    item_status VARCHAR(20) DEFAULT 'PENDING',
+CREATE TABLE IF NOT EXISTS items (                             -- create new item table if it doesnt exist
+    item_id INTEGER PRIMARY KEY AUTOINCREMENT,                 
+    order_id INTEGER NOT NULL,                                 -- foreign key linking to the orders table / every item MUST belong to an order / NOT NULL means you cant have orphaned item
+    item_name VARCHAR(100) NOT NULL,                           -- item name can be up to 100 characters / NOT NULL = needs a field
+    item_quantity INTEGER NOT NULL DEFAULT 1,                  -- number of items defaults to 1
+    item_price DECIMAL(10,2) NOT NULL,                         -- item price is a decimal number with 10 digits max, 2 digits after decimal point / NOT NULL = needs a field
+    item_status VARCHAR(20) DEFAULT 'PENDING',                 -- item status can have up to 20 characters, defaults to "PENDING"
     sides TEXT,
     item_total DECIMAL(10,2),
     modifiers TEXT,
-    FOREIGN KEY (order_id) REFERENCES orders(order_id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
+    FOREIGN KEY (order_id) REFERENCES orders(order_id)         -- the one to many relationship / FOREIGN KEY == order_id column in the items table . . . REFERENCES = orders(order_id) == must match an order_id in the orders table
+        ON DELETE CASCADE                                      -- if you delete an order, delete all of its items too
+        ON UPDATE CASCADE                                      -- if you change an order_id, update items too
 );
 
-CREATE INDEX IF NOT EXISTS idx_order_timestamp ON orders(order_timestamp);
-CREATE INDEX IF NOT EXISTS idx_items_order_id ON items(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_timestamp ON orders(order_timestamp);  -- idx_order_timestamp = fast searching by date/time
+CREATE INDEX IF NOT EXISTS idx_items_order_id ON items(order_id);           -- idx_items_order_id = fast searching for items by order
