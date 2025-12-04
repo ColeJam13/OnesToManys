@@ -98,6 +98,15 @@ public class Item {
         this.sides = sides;
     }
 
+    public BigDecimal getSidePrice() {
+        return sidePrice;
+    }
+
+    public void setSidePrice(BigDecimal sidePrice) {
+        this.sidePrice = sidePrice;
+    }
+
+
     public BigDecimal getItemTotal() {                      // returns the total cost of item (quantity * price)
         return itemTotal;
     }

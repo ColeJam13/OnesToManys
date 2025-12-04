@@ -34,4 +34,39 @@ public class ItemController {
     public Item createItem(@RequestBody Item item) {            // @RequestBody converts incoming JSON to Item object // spring calls all setters automatically
         return itemRepository.save(item);                       // save item to database // after the save() the item.itemId will be populated by database
     }                                                                   // Spring converts returned Item back to JSON and sends to client
+
+    @PutMapping("/{id}")
+    public Item updateItem(@PathVariable Long id, @RequestBody Item itemDetails) {
+
+        Item item = itemRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Item not found with id: " + id
+            ));
+
+        item.setOrderId(itemDetails.getOrderId());
+        item.setItemName(itemDetails.getItemName());
+        item.setItemQuantity(itemDetails.getItemQuantity());
+        item.setItemPrice(itemDetails.getItemPrice());
+        item.setItemStatus(itemDetails.getItemStatus());
+        item.setSides(itemDetails.getSides());
+        item.setSidePrice(itemDetails.getSidePrice());
+        item.setItemTotal(itemDetails.getItemTotal());
+        item.setModifiers(itemDetails.getModifiers());
+
+        return itemRepository.save(item);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteItem(@PathVariable Long id) {
+
+        Item item = itemRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Item not found with id: " + id
+            ));
+
+        itemRepository.delete(item);
+    }
 }
