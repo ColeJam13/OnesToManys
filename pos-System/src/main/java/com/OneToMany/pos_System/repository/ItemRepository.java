@@ -11,6 +11,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {         // e
 
 /*
 
+JQ to setup
+
 ## **How These Three Files Work Together**
 ```
 Client Request Flow:
