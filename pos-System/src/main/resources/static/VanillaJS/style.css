@@ -38,3 +38,115 @@ h1 {
     color: #6a0dad;
     font-family: Georgia, serif;
 }
+
+.view {
+    display: block;
+}
+
+.view-hidden {
+    display: none;
+}
+
+.landing-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+}
+
+.primary-btn {
+    background-color: #8e44ad;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.primary-btn:hover {
+    background-color: #6a0dad;
+}
+
+.back-btn {
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: background-color 0.3s;
+}
+
+.back-btn:hover {
+    background-color: #7f8c8d
+}
+
+.order-card {
+    background-color: white;
+    border: 2px solid #8e44ad;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.order-card h3 {
+    margin-top: 0;
+    color: #6a0dad;
+}
+
+.order-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.order-info p {
+    margin: 5px 0;
+}
+
+.show-items-btn {
+    background-color: #d4a574;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.show-items-btn:hover {
+    background-color: #c49563;
+}
+
+.order-detail-box {
+    background-color: #f8f9fa;
+    border: 2px solid #8e44ad;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.order-detail-box h3 {
+    margin-top: 0;
+    color: #6a0dad;
+}
+
+.item-card {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.item-card h4 {
+    margin-top: 0;
+    color: #6a0dad;
+}

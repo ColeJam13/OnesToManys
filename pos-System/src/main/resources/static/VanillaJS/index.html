@@ -10,43 +10,38 @@
         <h1 class="main-title"> Nota-POS </h1>
     </header>
 
-<div class="container">
-    <h1>Orders</h1>
-    <table id ="ordersTable">
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Table</th>
-                <th>Server</th>
-                <th>Guests</th>
-                <th>Total</th>
-                <th>Notes</th>
-            </tr>
-        </thead>
-        <tbody id="ordersBody">
+<!-- LANDING VIEW -->
+    <div id="landingView" class="view">
+        <div class="landing-container">
+            <button is="showOrdersBtn" class="primary-btn">Show Orders</button>
+        </div>
+    </div>
 
-        </tbody>
-    </table>
+<!-- ORDERS VIEW -->
+    <div id="ordersView" class="view hidden">
+        <div class="container">
+            <button id="backToHomeBtn" class="back-btn">Back to Home</button>
+            <h2>Orders</h2>
+            <div id="ordersContainer">
+                <!-- ORDERS INSERTED HERE -->
+            </div>
+        </div>
+    </div>
 
-    <h1>Items</h1>
-    <table id="itemsTable">
-        <thead>
-            <tr>
-                <th>Item ID</th>
-                <th>Order ID</th>
-                <th>Item Name</th>
-                <th>Quantity</th>
-                <th>Item Price</th>
-                <th>Sides</th>
-                <th>Side Price</th>
-                <th>Total $</th>
-                <th>Modifiers</th>
-            </tr>
-        </thead>
-        <tbody id="itemsBody">
-        </tbody>
-    </table>
-</div>
+    <!-- ITEMS VIEW -->
+    <div id="itemsView" class="view hidden">
+        <div class="container">
+            <button id="backToOrdersBtn" class="back-btn"> Back to Orders</button>
+            <h2>Order Details</h2>
+            <div id="orderInfoContainer">
+                <!-- ORDER INFO HERE -->
+            </div>
+            <h3>Items</h3>
+            <div id="itemsContainer">
+                <!-- ITEMS HERE -->
+            </div>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>
