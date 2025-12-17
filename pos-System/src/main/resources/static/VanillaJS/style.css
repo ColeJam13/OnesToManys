@@ -150,3 +150,21 @@ h1 {
     margin-top: 0;
     color: #6a0dad;
 }
+
+.loading-indicator {
+    text-align: center;
+    padding: 40px;
+    color: #6a0dad;
+    font-size: 18px;
+}
+
+.loading-indicator::after {
+    content: '...';
+    animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60%, 100% { content: '...'; }
+}

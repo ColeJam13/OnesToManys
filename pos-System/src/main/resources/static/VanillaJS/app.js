@@ -1,146 +1,173 @@
-let allOrders = [];
-let allItems = [];
-let currentView = 'landing';
-let selectedOrderId = null;
+import { formatCurrency, createElement, showError, createLoadingIndicator } from './utils.js';
+import { fetchAllData, fetchItemsByOrderId } from './api.js';
 
-const landingView = document.getElementById('landingView');
-const ordersView = document.getElementById('ordersView');
-const itemsView = document.getElementById('itemsView');
+class OrderManager {
+    constructor() {
+        this.orders = [];
+        this.items = [];
+        this.currentView = 'landing';
+        this.selectedOrderId = null;
 
-const showOrdersBtn = document.getElementById('showOrdersBtn');
-const backToHomeBtn = document.getElementById('backToHomeBtn');
-const backToOrdersBtn = document.getElementById('backToOrdersBtn');
+        this.landingView = document.getElementById('landingView');
+        this.ordersView = document.getElementById('ordersView');
+        this.itemsView = document.getElementById('itemsView');
 
-const ordersContainer = document.getElementById('ordersContainer');
-const itemsContainer = document.getElementById('itemsContainer');
-const orderInfoContainer = document.getElementById('orderInfoContainer');
+        this.ordersContainer = document.getElementById('ordersContainer');
+        this.itemsContainer = document.getElementById('itemsContainer');
+        this.orderInfoContainer = document.getElementById('orderInfoContainer');
+        this.bindEvents();
+        this.showLandingView();
+    }
 
-showOrdersBtn.addEventListener('click', loadAndShowOrders);
-backToHomeBtn.addEventListener('click', showLandingView);
-backToOrdersBtn.addEventListener('click', showOrdersView);
+    bindEvents() {
+        document.getElementById('showOrdersBtn')
+            .addEventListener('click', () => this.loadAndShowOrders());
+        document.getElementById('backToHomeBtn')
+            .addEventListener('click', () => this.showLandingView());
+        document.getElementById('backToOrdersBtn')
+            .addEventListener('click', () => this.showOrdersView());
+    }
 
-function showLandingView() {
-    hideAllViews();
-    landingView.classList.remove('hidden');
-    currentView = 'landing';
-}
+    async loadAndShowOrders() {
+        try {
+            this.ordersContainer.innerHTML = '';
+            this.ordersContainer.appendChild(createLoadingIndicator());
+            const data = await fetchAllData();
+            this.orders = data.orders;
+            this.items = data.items;
+            this.showOrdersView();
+        } catch (error) {
+            showError('Failed to load orders. Please try again.');
+        }
+    }
 
-function showOrdersView() {
-    hideAllViews();
-    ordersView.classList.remove('hidden');
-    currentView = 'orders';
-    renderOrders();
-}
+    showLandingView() {
+        this.hideAllViews();
+        this.landingView.classList.remove('hidden');
+        this.currentView = 'landing';
+    }
 
-function showItemsView(orderId) {
-    hideAllViews();
-    itemsView.classList.remove('hidden');
-    currentView = 'items';
-    selectedOrderId = orderId;
-    renderOrderDetails(orderId);
-    renderItems(orderId);
-}
+    showOrdersView() {
+        this.hideAllViews();
+        this.ordersView.classList.remove('hidden');
+        this.currentView = 'orders';
+        this.renderOrders();
+    }
 
-function hideAllViews() {
-    landingView.classList.add('hidden');
-    ordersView.classList.add('hidden');
-    itemsView.classList.add('hidden');
-}
+    async showItemsView(orderId) {
+        this.hideAllViews();
+        this.itemsView.classList.remove('hidden');
+        this.currentView = 'items';
+        this.selectedOrderId = orderId;
+        this.renderOrderDetails(orderId);
+        this.itemsContainer.innerHTML = '';
+        this.itemsContainer.appendChild(createLoadingIndicator());
 
-function loadAndShowOrders() {
-    fetch('http://localhost:8080/api/orders')
-        .then(response => response.json())
-        .then(orders => {
-            allOrders = orders;
-            return fetch('http://localhost:8080/api/items');
-        })
-        .then(response => response.json())
-        .then(items => {
-            allItems = items;
-            showOrdersView();
-        })
-        .catch(error => {
-            console.error('Error loading data:', error);
-            alert('Failed to load orders. Please try again.');
+        try {
+            const orderItems = await fetchItemsByOrderId(orderId);
+            this.renderItems(orderItems);
+        } catch (error) {
+            showError('Failed to load items.');
+        }
+    }
+
+    hideAllViews() {
+        this.landingView.classList.add('hidden');
+        this.ordersView.classList.add('hidden');
+        this.itemsView.classList.add('hidden');
+    }
+
+    renderOrders() {
+        this.ordersContainer.innerHTML = '';
+
+        if (this.orders.length === 0) {
+            this.ordersContainer.innerHTML = '<p>No orders found.</p>';
+            return;
+        }
+
+        this.orders.forEach(order => {
+            const orderCard = this.createOrderCard(order);
+            this.ordersContainer.appendChild(orderCard);
         });
-}
+    }
 
-function renderOrders() {
-    ordersContainer.innerHTML = '';
+    createOrderCard(order) {
+        const card = createElement('div', 'order-card');
 
-    allOrders.forEach(order => {
-        const orderCard = document.createElement('div');
-        orderCard.className = 'order-card';
-
-        orderCard.innerHTML = `
+        card.innerHTML = `
         <h3>Order #${order.orderId}</h3>
         <div class="order-info">
             <p><strong>Table:</strong> ${order.tableNumber}</p>
             <p><strong>Server:</strong> ${order.serverName}</p>
             <p><strong>Guests:</strong> ${order.guestCount}</p>
-            <p><strong>Total:</strong> $${order.total.toFixed(2)}</p>
+            <p><strong>Total:</strong> ${formatCurrency(order.total)}</p>
         </div>
         <p><strong>Notes:</strong> ${order.notes || 'None'}</p>
-        <button class="show-items-btn" data-order-id="${order.orderId}">Show Items</button>
+        <button class="show-items-btn" data-order-id="${order.orderId}">
+            Show Items
+        </button>
         `;
 
-        ordersContainer.appendChild(orderCard);
-    });
-
-    document.querySelectorAll('.show-items-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const orderId = parseInt(e.target.dataset.orderId);
-            showItemsView(orderId);
+        const btn = card.querySelector('.show-items-btn');
+        btn.addEventListener('click', () => {
+            const orderId = parseInt(btn.dataset.orderId);
+            this.showItemsView(orderId);
         });
-    });
-}
 
-function renderOrderDetails(orderId) {
-    const order = allOrders.find(o => o.orderId === orderId);
-
-    if (!order) {
-        orderInfoContainer.innerHTML = '<p>Order not found</p>';
-        return;
+        return card;
     }
 
-    orderInfoContainer.innerHTML = `
+    renderOrderDetails(orderId) {
+        const order = this.orders.find(o => o.orderId === orderId);
+
+        if (!order) {
+            this.orderInfoContainer.innerHTML = '<p>Order not found</p>';
+            return;
+        }
+
+        this.orderInfoContainer.innerHTML = `
         <div class="order-detail-box">
             <h3>Order #${order.orderId}</h3>
             <p><strong>Table:</strong> ${order.tableNumber}</p>
             <p><strong>Server:</strong> ${order.serverName}</p>
             <p><strong>Guests:</strong> ${order.guestCount}</p>
-            <p><strong>Total:</strong> $${order.total.toFixed(2)}</p>
+            <p><strong>Total:</strong> ${formatCurrency(order.total)}</p>
             <p><strong>Notes:</strong> ${order.notes || 'None'}</p>
         </div>
-    `;
-}
-
-function renderItems(orderId) {
-    itemsContainer.innerHTML = '';
-
-    const orderItems = allItems.filter(item => item.orderId === orderId);
-
-    if (orderItems.length === 0) {
-        itemsContainer.innerHTML = '<p>No items found for this order.</p>';
-        return;
+        `;
     }
 
-    orderItems.forEach(item => {
-        const itemCard = document.createElement('div');
-        itemCard.className = 'item-card';
+    renderItems(items) {
+        this.itemsContainer.innerHTML = '';
 
-        itemCard.innerHTML = `
+        if (items.length === 0) {
+            this.itemsContainer.innerHTML = '<p>No items found for this order.</p>';
+            return;
+        }
+
+        items.forEach(item => {
+            const itemCard = this.createItemCard(item);
+            this.itemsContainer.appendChild(itemCard);
+        });
+    }
+
+    createItemCard(item) {
+        const card = createElement('div', 'item-card');
+
+        card.innerHTML = `
         <h4>${item.itemName}</h4>
         <p><strong>Quantity:</strong> ${item.itemQuantity}</p>
-        <p><string>Item Price:</strong> $${item.itemPrice.toFixed(2)}</p>
+        <p><strong>Item Price:</strong> ${formatCurrency(item.itemPrice)}</p>
         ${item.sides ? `<p><strong>Sides:</strong> ${item.sides}</p>` : ''}
-        ${item.sidePrice ? `<p><strong>Side Price:</strong> $${item.sidePrice.toFixed(2)}` : ''}
-        <p><strong>Item Total:</strong> $${item.itemTotal.toFixed(2)}</p>
+        ${item.sidePrice ? `<p><strong>Side Price:</strong> ${formatCurrency(item.sidePrice)}</p>` : ''}
+        <p><strong>Item Total:</strong> ${formatCurrency(item.itemTotal)}</p>
         ${item.modifiers ? `<p><strong>Modifiers:</strong> ${item.modifiers}</p>` : ''}
         `;
 
-        itemsContainer.appendChild(itemCard);
-    });
+        return card;
+    }
 }
 
-showLandingView();
+document.addEventListener('DOMContentLoaded', () => {
+    const app = new OrderManager();
+});
