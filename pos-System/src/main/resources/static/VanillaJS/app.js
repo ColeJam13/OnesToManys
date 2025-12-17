@@ -81,7 +81,7 @@ function renderOrders() {
             <p><strong>Total:</strong> $${order.total.toFixed(2)}</p>
         </div>
         <p><strong>Notes:</strong> ${order.notes || 'None'}</p>
-        <button class="show-items-btn: data-order-id="${order.orderId}">Show Items</button>
+        <button class="show-items-btn" data-order-id="${order.orderId}">Show Items</button>
         `;
 
         ordersContainer.appendChild(orderCard);
@@ -105,7 +105,7 @@ function renderOrderDetails(orderId) {
 
     orderInfoContainer.innerHTML = `
         <div class="order-detail-box">
-            <h3>Order #${order.orderID}</h3>
+            <h3>Order #${order.orderId}</h3>
             <p><strong>Table:</strong> ${order.tableNumber}</p>
             <p><strong>Server:</strong> ${order.serverName}</p>
             <p><strong>Guests:</strong> ${order.guestCount}</p>
@@ -118,7 +118,7 @@ function renderOrderDetails(orderId) {
 function renderItems(orderId) {
     itemsContainer.innerHTML = '';
 
-    const orderItems = allItems.filter(item => item.orderID === orderID);
+    const orderItems = allItems.filter(item => item.orderId === orderId);
 
     if (orderItems.length === 0) {
         itemsContainer.innerHTML = '<p>No items found for this order.</p>';
@@ -138,6 +138,8 @@ function renderItems(orderId) {
         <p><strong>Item Total:</strong> $${item.itemTotal.toFixed(2)}</p>
         ${item.modifiers ? `<p><strong>Modifiers:</strong> ${item.modifiers}</p>` : ''}
         `;
+
+        itemsContainer.appendChild(itemCard);
     });
 }
 
