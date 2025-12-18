@@ -91,7 +91,46 @@
             </form>
         </div>
     </div>
+<!-- ADD ITEM VIEW -->
+    <dis id="addItemView" class="view hidden">
+        <div class="container">
+            <button id="backToHomeFromAddItemBtn" class="back-btn">Back to Home</button>
+            <h2>Add New Item</h2>
+            <form id="addItemForm" class="form-container">
+                <div class="form-group">
+                    <label for="itemOrderId">Order ID:</label>
+                    <input type="number" id="itemOrderId" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemName">Item Name:</label>
+                    <input type="text" id="itemName" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemQuantity">Quantity:</label>
+                    <input type="number" id="itemQuantity" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemPrice">Item Price:</label>
+                    <input type="number" step="0.01" id="itemPrice" required>
+                </div>
+                <div class="form-group">
+                    <label for="sides">Sides (optional):</label>
+                    <input type="text" id="sides">
+                </div>
+                <div class="form-group">
+                    <label for="sidePrice">Side Price (optional):</label>
+                    <input type="number" step="0.01" id="sidePrice">
+                </div>
+                <div class="form-group">
+                    <label for="modifiers">Modifiers (optional):</label>
+                    <textarea id="modifiers" rows="2"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Create Item</button>
+            </form>
+        </div>
+    </dis>
 
     <script type="module" src="app.js"></script>
-    </body>
-    </html>
+    
+</body>
+</html>

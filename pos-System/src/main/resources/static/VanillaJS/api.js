@@ -67,7 +67,7 @@ export async function createOrder(orderData) {
 
                 console.log('Response status:', response.status);
 
-                
+
 
         if (!response.ok) {
             throw new Error(`Failed to create order: ${response.status}`);
@@ -124,6 +124,80 @@ export async function deleteOrder(orderId) {
         }
     } catch (error) {
         console.error('Error deleting order:', error);
+        throw error;
+    }
+}
+
+export async function createItem(itemData) {
+    try {
+        console.log('=== API CREATE ITEM ===');
+        console.log('Sending:', JSON.stringify(itemData, null, 2));
+
+        const response = await fetch(`${API_BASE_URL}/items`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(itemData)
+        });
+
+        console.log('Response status:', response.status);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.log('Error:', errorText);
+            throw new Error(`Failed to create item: ${response.status}`);
+        }
+
+        const createdItem = await response.json();
+        return createdItem;
+    } catch (error) {
+        console.error('Error creating item:', error);
+        throw error;
+    }
+}
+
+export async function updateItem(itemId, itemData) {
+    try {
+        console.log('=== UPDATE ITEM DEBUG ===');
+        console.log('Item ID:', itemId);
+        console.log('Item Data', itemData);
+
+        const response = await fetch(`${API_BASE_URL}/items/${itemId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(itemData)
+        });
+
+        console.log('Response status', response.status);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.log('Error response:', errorText);
+            throw new Error(`Failed to update item: ${response.status}`);
+        }
+
+        const updatedItem = await response.json();
+        return updatedItem;
+    } catch (error) {
+        console.error('Error updating item', error);
+        throw error;
+    }
+}
+
+export async function deleteItem(itemId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/items/${itemId}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to delete item: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Error deleting item:', error);
         throw error;
     }
 }

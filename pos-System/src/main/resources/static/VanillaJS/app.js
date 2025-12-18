@@ -1,5 +1,5 @@
 import { formatCurrency, createElement, showError, createLoadingIndicator } from './utils.js';
-import { fetchAllData, fetchItemsByOrderId, createOrder, updateOrder, deleteOrder } from './api.js';
+import { fetchAllData, fetchItemsByOrderId, createOrder, updateOrder, deleteOrder, createItem, updateItem, deleteItem } from './api.js';
 
 class OrderManager {
     constructor() {
@@ -14,6 +14,7 @@ class OrderManager {
         this.orderItemsView = document.getElementById('orderItemsView');
         this.allItemsView = document.getElementById('allItemsView');
         this.addOrderView = document.getElementById('addOrderView');
+        this.addItemView = document.getElementById('addItemView');
         
         this.ordersContainer = document.getElementById('ordersContainer');
         this.orderItemsContainer = document.getElementById('orderItemsContainer');
@@ -34,7 +35,7 @@ class OrderManager {
         document.getElementById('showAllItemsBtn')
             .addEventListener('click', () => this.loadAndShowAllItems());
         document.getElementById('addItemBtn')
-            .addEventListener('click', () => alert('Add Item feature coming soon!'));
+            .addEventListener('click', () => this.showAddItemView());
             
         document.getElementById('backToHomeBtn')
             .addEventListener('click', () => this.showLandingView());
@@ -44,9 +45,13 @@ class OrderManager {
             .addEventListener('click', () => this.showLandingView());
         document.getElementById('backToHomeFromAddOrderBtn')
             .addEventListener('click', () => this.showLandingView());
+        document.getElementById('backToHomeFromAddItemBtn')
+            .addEventListener('click', () => this.showLandingView());
             
         document.getElementById('addOrderForm')
             .addEventListener('submit', (e) => this.handleAddOrderSubmit(e));
+        document.getElementById('addItemForm')
+            .addEventListener('submit', (e) => this.handleAddItemSubmit(e));
     }
 
     async loadAndShowOrders() {
@@ -131,6 +136,7 @@ class OrderManager {
         this.orderItemsView.classList.add('hidden');
         this.allItemsView.classList.add('hidden');
         this.addOrderView.classList.add('hidden');
+        this.addItemView.classList.add('hidden');
     }
 
     async handleAddOrderSubmit(event) {
@@ -356,16 +362,120 @@ class OrderManager {
         const editBtn = card.querySelector('.edit-btn');
         editBtn.addEventListener('click', () => {
             const itemId = parseInt(editBtn.dataset.itemId);
-            alert(`Edit Item #${itemId} - Feature coming soon!`);
+            this.handleEditItem(itemId);
         });
 
         const deleteBtn = card.querySelector('.delete-btn');
         deleteBtn.addEventListener('click', () => {
             const itemId = parseInt(deleteBtn.dataset.itemId);
-            alert(`Delete Item #${itemId} - Feature coming soon!`);
+            this.handleDeleteItem(itemId);
         });
         
         return card;
+    }
+
+    showAddItemView() {
+        this.hideAllViews();
+        this.addItemView.classList.remove('hidden');
+        this.currentView = 'addItem';
+        document.getElementById('addItemForm').reset();
+    }
+
+    async handleAddItemSubmit(event) {
+        event.preventDefault();
+
+        const orderId = parseInt(document.getElementById('itemOrderId').value);
+        const itemName = document.getElementById('itemName').value;
+        const itemQuantity = parseInt(document.getElementById('itemQuantity').value);
+        const itemPrice = parseFloat(document.getElementById('itemPrice').value);
+        const sides = document.getElementById('sides').value;
+        const sidePrice = document.getElementById('sidePrice').value;
+        const modifiers = document.getElementById('modifiers').value;
+
+        const itemTotal = (itemPrice * itemQuantity) + (sidePrice ? parseFloat(sidePrice) : 0);
+
+        const newItem = {
+            orderId,
+            itemName,
+            itemQuantity,
+            itemPrice,
+            sides: sides || null,
+            sidePrice: sidePrice ? parseFloat(sidePrice) : null,
+            modifiers: modifiers || null,
+            itemTotal
+        };
+
+        try {
+            const createdItem = await createItem(newItem);
+            alert(`Item "${createdItem.itemName}" added successfully to Order #${createdItem.orderId}!`);
+            this.showLandingView();
+        } catch (error) {
+            showError('Failed to create item. Please try again.');
+        }
+    }
+
+    async handleEditItem(itemId) {
+        const item = this.items.find(i => i.itemId === itemId);
+
+        if (!item) {
+            showError('Item not found');
+            return;
+        }
+
+        const newItemName = prompt('Enter new item name:', item.itemName);
+        const newQuantity = prompt('Enter new quantity:', item.itemQuantity);
+        const newPrice = prompt('Enter new price:', item.itemPrice);
+        const newSides = prompt('Enter sides (leave empty for none):', item.sides || '');
+        const newSidePrice = prompt('Enter side price (leave empty for none):', item.sidePrice || '');
+        const newModifiers = prompt('Enter modifiers (leave empty for none):', item.modifiers || '');
+
+        if (newItemName === null) return;
+
+        const quantity = parseInt(newQuantity);
+        const price = parseFloat(newPrice);
+        const sPrice = newSidePrice ? parseFloat(newSidePrice) : 0;
+        const itemTotal = (price * quantity) + sPrice;
+
+        const updatedItem = {
+            ...item,
+            itemId: item.itemId,
+            itemName: newItemName,
+            itemQuantity: quantity,
+            itemPrice: price,
+            sides: newSides || null,
+            sidePrice: newSidePrice ? parseFloat(newSidePrice) : null,
+            modifiers: newModifiers || null,
+            itemTotal
+        };
+
+        try {
+            await updateItem(itemId, updatedItem);
+            alert('Item updated successfully!');
+            this.loadAndShowAllItems();
+        } catch (error) {
+            showError('Failed to update item.');
+        }
+    }
+
+    async handleDeleteItem(itemId) {
+        const item = this.items.find(i => i.itemId === itemId);
+
+        if (!item) {
+            showError('Item not found');
+            return;
+        }
+
+        const confirmed = confirm(`Are you sure you want to delete "${item.itemName}"?`);
+
+        if (!confirmed) return;
+
+        try {
+            await deleteItem(itemId);
+            alert('Item deleted successfully!');
+            this.loadAndShowAllItems();
+        } catch (error) {
+            showError('Failed to delete item.');
+        }
     }
 }
 
