@@ -35,10 +35,6 @@ class OrderManager {
             .addEventListener('click', () => this.loadAndShowAllItems());
         document.getElementById('addItemBtn')
             .addEventListener('click', () => alert('Add Item feature coming soon!'));
-        document.getElementById('editItemBtn')
-            .addEventListener('click', () => alert('Edit Item feature coming soon!'));
-        document.getElementById('deleteItemBtn')
-            .addEventListener('click', () => alert('Delete Item feature coming soon!'));
             
         document.getElementById('backToHomeBtn')
             .addEventListener('click', () => this.showLandingView());
@@ -351,7 +347,23 @@ class OrderManager {
             ${item.sidePrice ? `<p><strong>Side Price:</strong> ${formatCurrency(item.sidePrice)}</p>` : ''}
             <p><strong>Item Total:</strong> ${formatCurrency(item.itemTotal)}</p>
             ${item.modifiers ? `<p><strong>Modifiers:</strong> ${item.modifiers}</p>` : ''}
+            <div class="card-actions">
+                <button class="edit-btn" data-item-id="${item.itemId}">Edit</button>
+                <button class="delete-btn" data-item-id="${item.itemId}">Delete</button>
+            </div>
         `;
+
+        const editBtn = card.querySelector('.edit-btn');
+        editBtn.addEventListener('click', () => {
+            const itemId = parseInt(editBtn.dataset.itemId);
+            alert(`Edit Item #${itemId} - Feature coming soon!`);
+        });
+
+        const deleteBtn = card.querySelector('.delete-btn');
+        deleteBtn.addEventListener('click', () => {
+            const itemId = parseInt(deleteBtn.dataset.itemId);
+            alert(`Delete Item #${itemId} - Feature coming soon!`);
+        });
         
         return card;
     }
