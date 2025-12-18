@@ -52,6 +52,11 @@ export async function fetchAllData() {
 
 export async function createOrder(orderData) {
     try {
+
+                console.log('=== API CREATE ORDER ===');
+        console.log('Sending:', JSON.stringify(orderData, null, 2));
+
+
         const response = await fetch(`${API_BASE_URL}/orders`, {
             method: 'POST',
             headers: {
@@ -59,6 +64,10 @@ export async function createOrder(orderData) {
             },
             body: JSON.stringify(orderData)
         });
+
+                console.log('Response status:', response.status);
+
+                
 
         if (!response.ok) {
             throw new Error(`Failed to create order: ${response.status}`);
@@ -74,6 +83,12 @@ export async function createOrder(orderData) {
 
 export async function updateOrder(orderId, orderData) {
     try {
+
+                console.log('=== UPDATE ORDER DEBUG ===');
+        console.log('Order ID:', orderId);
+        console.log('Order Data:', orderData);
+        console.log('JSON being sent:', JSON.stringify(orderData, null, 2));
+
         const response = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
             method: 'PUT',
             headers: {
@@ -82,11 +97,15 @@ export async function updateOrder(orderId, orderData) {
             body:JSON.stringify(orderData)
         });
 
+        console.log('Response status:', response.status);
+
         if (!response.ok) {
+            const errorText = await response.text();
+            console.log('Error response body:', errorText);
             throw new Error(`Failed to update order: ${response.status}`);
         }
 
-        const updateOrder = await response.json();
+        const updatedOrder = await response.json();
         return updatedOrder;
     } catch (error) {
         console.error('Error updating order:', error);

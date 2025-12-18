@@ -30,10 +30,6 @@ class OrderManager {
             .addEventListener('click', () => this.loadAndShowOrders());
         document.getElementById('addOrderBtn')
             .addEventListener('click', () => this.showAddOrderView());
-        document.getElementById('editOrderBtn')
-            .addEventListener('click', () => this.showEditOrderView());
-        document.getElementById('deleteOrderBtn')
-            .addEventListener('click', () => this.showDeleteOrderView());
             
         document.getElementById('showAllItemsBtn')
             .addEventListener('click', () => this.loadAndShowAllItems());
@@ -133,14 +129,6 @@ class OrderManager {
         document.getElementById('addOrderForm').reset();
     }
 
-    showEditOrderView() {
-        alert('Edit Order feature: Please show all orders first, then we will add edit buttons to each order card.');
-    }
-
-    showDeleteOrderView() {
-        alert('Delete Order feature: Please show all orders first, then we will add delete buttons to each order card.');
-    }
-
     hideAllViews() {
         this.landingView.classList.add('hidden');
         this.ordersView.classList.add('hidden');
@@ -152,18 +140,28 @@ class OrderManager {
     async handleAddOrderSubmit(event) {
         event.preventDefault();
 
-        const tableNumber = parseInt(document.getElementById('tableNumber').value);
+        const tableNumber = document.getElementById('tableNumber').value;
         const serverName = document.getElementById('serverName').value;
         const guestCount = parseInt(document.getElementById('guestCount').value);
         const notes = document.getElementById('notes').value;
+
+            console.log('=== CREATE ORDER DEBUG ===');
+    console.log('tableNumber:', tableNumber);
+    console.log('serverName:', serverName);
+    console.log('guestCount:', guestCount);
+    console.log('notes:', notes);
         
         const newOrder = {
             tableNumber,
             serverName,
             guestCount,
             notes: notes || null,
+            subtotal: 0,
+            tax: 0,
             total: 0
         };
+
+            console.log('New order object:', newOrder);
         
         try {
             const createdOrder = await createOrder(newOrder);
@@ -233,6 +231,9 @@ class OrderManager {
 
     async handleEditOrder(orderId) {
         const order = this.orders.find(o => o.orderId === orderId);
+
+    console.log('Original order object:', order);
+    console.log('Table number from original order:', order.tableNumber);
         
         if (!order) {
             showError('Order not found');
@@ -243,16 +244,22 @@ class OrderManager {
         const newServerName = prompt('Enter new server name:', order.serverName);
         const newGuestCount = prompt('Enter new guest count:', order.guestCount);
         const newNotes = prompt('Enter new notes:', order.notes || '');
+
+    console.log('User entered table number:', newTableNumber);
+    console.log('Type of newTableNumber:', typeof newTableNumber);
         
         if (newTableNumber === null) return;
         
         const updatedOrder = {
             ...order,
-            tableNumber: parseInt(newTableNumber),
+            tableNumber: newTableNumber,
             serverName: newServerName,
             guestCount: parseInt(newGuestCount),
             notes: newNotes || null
         };
+
+    console.log('Updated order object to send:', updatedOrder);
+    console.log('Updated order tableNumber:', updatedOrder.tableNumber);
         
         try {
             await updateOrder(orderId, updatedOrder);

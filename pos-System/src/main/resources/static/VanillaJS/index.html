@@ -18,8 +18,6 @@
                 <div class="button-group">
                     <button id="showAllOrdersBtn" class="action-btn">Show All Orders</button>
                     <button id="addOrderBtn" class="action-btn">Add Order</button>
-                    <button id="editOrderBtn" class="action-btn">Edit Order</button>
-                    <button id="deleteOrderBtn" class="action-btn">Delete Order</button>
                 </div>
             </div>
 
@@ -62,7 +60,7 @@
 
     <div id="allItemsView" class="view hidden">
         <div class="container">
-            <button is="backToHomeFromItemsBtn" class="back-btn">Back to Home</button>
+            <button id="backToHomeFromItemsBtn" class="back-btn">Back to Home</button>
             <h2>All Items</h2>
             <div id="allItemsContainer">
                 <!-- ALL ITEMS HERE -->
@@ -72,16 +70,20 @@
 
     <div id="addOrderView" class="view hidden">
         <div class="container">
-            <button id="backToHomeFromAddOrderButton" class="back-btn">Back to Home</button>
+            <button id="backToHomeFromAddOrderBtn" class="back-btn">Back to Home</button>
             <h2>Add New Order</h2>
             <form id="addOrderForm" class="form-container">
                 <div class="form-group">
                     <label for="tableNumber">Table Number:</label>
-                    <input type="number" id="tableNumber" required>
+                    <input type="text" id="tableNumber" required>
                 </div>
                 <div class="form-group">
                     <label for="serverName">Server Name:</label>
                     <input type="text" id="serverName" required>
+                </div>
+                <div class="form-group">
+                    <label for="guestCount">Guest Count:</label>
+                    <input type="number" id="guestCount" required>
                 </div>
                 <div class="form-group">
                     <label for="notes">Notes:</label>
