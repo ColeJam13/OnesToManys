@@ -1,43 +1,89 @@
 import { formatCurrency, createElement, showError, createLoadingIndicator } from './utils.js';
-import { fetchAllData, fetchItemsByOrderId } from './api.js';
+import { fetchAllData, fetchItemsByOrderId, createOrder, updateOrder, deleteOrder } from './api.js';
 
 class OrderManager {
     constructor() {
+
         this.orders = [];
         this.items = [];
         this.currentView = 'landing';
         this.selectedOrderId = null;
-
+        
         this.landingView = document.getElementById('landingView');
         this.ordersView = document.getElementById('ordersView');
-        this.itemsView = document.getElementById('itemsView');
-
+        this.orderItemsView = document.getElementById('orderItemsView');
+        this.allItemsView = document.getElementById('allItemsView');
+        this.addOrderView = document.getElementById('addOrderView');
+        
         this.ordersContainer = document.getElementById('ordersContainer');
-        this.itemsContainer = document.getElementById('itemsContainer');
+        this.orderItemsContainer = document.getElementById('orderItemsContainer');
+        this.allItemsContainer = document.getElementById('allItemsContainer');
         this.orderInfoContainer = document.getElementById('orderInfoContainer');
+        
         this.bindEvents();
         this.showLandingView();
     }
-
+    
     bindEvents() {
-        document.getElementById('showOrdersBtn')
+
+        document.getElementById('showAllOrdersBtn')
             .addEventListener('click', () => this.loadAndShowOrders());
+        document.getElementById('addOrderBtn')
+            .addEventListener('click', () => this.showAddOrderView());
+        document.getElementById('editOrderBtn')
+            .addEventListener('click', () => this.showEditOrderView());
+        document.getElementById('deleteOrderBtn')
+            .addEventListener('click', () => this.showDeleteOrderView());
+            
+        document.getElementById('showAllItemsBtn')
+            .addEventListener('click', () => this.loadAndShowAllItems());
+        document.getElementById('addItemBtn')
+            .addEventListener('click', () => alert('Add Item feature coming soon!'));
+        document.getElementById('editItemBtn')
+            .addEventListener('click', () => alert('Edit Item feature coming soon!'));
+        document.getElementById('deleteItemBtn')
+            .addEventListener('click', () => alert('Delete Item feature coming soon!'));
+            
         document.getElementById('backToHomeBtn')
             .addEventListener('click', () => this.showLandingView());
         document.getElementById('backToOrdersBtn')
             .addEventListener('click', () => this.showOrdersView());
+        document.getElementById('backToHomeFromItemsBtn')
+            .addEventListener('click', () => this.showLandingView());
+        document.getElementById('backToHomeFromAddOrderBtn')
+            .addEventListener('click', () => this.showLandingView());
+            
+        document.getElementById('addOrderForm')
+            .addEventListener('submit', (e) => this.handleAddOrderSubmit(e));
     }
 
     async loadAndShowOrders() {
         try {
             this.ordersContainer.innerHTML = '';
             this.ordersContainer.appendChild(createLoadingIndicator());
+            
             const data = await fetchAllData();
             this.orders = data.orders;
             this.items = data.items;
+            
             this.showOrdersView();
         } catch (error) {
             showError('Failed to load orders. Please try again.');
+        }
+    }
+
+    async loadAndShowAllItems() {
+        try {
+            this.allItemsContainer.innerHTML = '';
+            this.allItemsContainer.appendChild(createLoadingIndicator());
+            
+            const data = await fetchAllData();
+            this.orders = data.orders;
+            this.items = data.items;
+            
+            this.showAllItemsView();
+        } catch (error) {
+            showError('Failed to load items. Please try again.');
         }
     }
 
@@ -54,37 +100,91 @@ class OrderManager {
         this.renderOrders();
     }
 
-    async showItemsView(orderId) {
+    async showOrderItemsView(orderId) {
         this.hideAllViews();
-        this.itemsView.classList.remove('hidden');
-        this.currentView = 'items';
+        this.orderItemsView.classList.remove('hidden');
+        this.currentView = 'orderItems';
         this.selectedOrderId = orderId;
+        
         this.renderOrderDetails(orderId);
-        this.itemsContainer.innerHTML = '';
-        this.itemsContainer.appendChild(createLoadingIndicator());
-
+        this.orderItemsContainer.innerHTML = '';
+        this.orderItemsContainer.appendChild(createLoadingIndicator());
+        
         try {
             const orderItems = await fetchItemsByOrderId(orderId);
-            this.renderItems(orderItems);
+            this.renderOrderItems(orderItems);
         } catch (error) {
             showError('Failed to load items.');
         }
     }
 
+    showAllItemsView() {
+        this.hideAllViews();
+        this.allItemsView.classList.remove('hidden');
+        this.currentView = 'allItems';
+        this.renderAllItems();
+    }
+
+    showAddOrderView() {
+        this.hideAllViews();
+        this.addOrderView.classList.remove('hidden');
+        this.currentView = 'addOrder';
+
+        document.getElementById('addOrderForm').reset();
+    }
+
+    showEditOrderView() {
+        alert('Edit Order feature: Please show all orders first, then we will add edit buttons to each order card.');
+    }
+
+    showDeleteOrderView() {
+        alert('Delete Order feature: Please show all orders first, then we will add delete buttons to each order card.');
+    }
+
     hideAllViews() {
         this.landingView.classList.add('hidden');
         this.ordersView.classList.add('hidden');
-        this.itemsView.classList.add('hidden');
+        this.orderItemsView.classList.add('hidden');
+        this.allItemsView.classList.add('hidden');
+        this.addOrderView.classList.add('hidden');
+    }
+
+    async handleAddOrderSubmit(event) {
+        event.preventDefault();
+
+        const tableNumber = parseInt(document.getElementById('tableNumber').value);
+        const serverName = document.getElementById('serverName').value;
+        const guestCount = parseInt(document.getElementById('guestCount').value);
+        const notes = document.getElementById('notes').value;
+        
+        const newOrder = {
+            tableNumber,
+            serverName,
+            guestCount,
+            notes: notes || null,
+            total: 0
+        };
+        
+        try {
+            const createdOrder = await createOrder(newOrder);
+            
+            alert(`Order #${createdOrder.orderId} created successfully!`);
+            
+            this.showLandingView();
+            
+        } catch (error) {
+            showError('Failed to create order. Please try again.');
+        }
     }
 
     renderOrders() {
         this.ordersContainer.innerHTML = '';
-
+        
         if (this.orders.length === 0) {
             this.ordersContainer.innerHTML = '<p>No orders found.</p>';
             return;
         }
-
+        
         this.orders.forEach(order => {
             const orderCard = this.createOrderCard(order);
             this.ordersContainer.appendChild(orderCard);
@@ -93,77 +193,159 @@ class OrderManager {
 
     createOrderCard(order) {
         const card = createElement('div', 'order-card');
-
+        
         card.innerHTML = `
-        <h3>Order #${order.orderId}</h3>
-        <div class="order-info">
-            <p><strong>Table:</strong> ${order.tableNumber}</p>
-            <p><strong>Server:</strong> ${order.serverName}</p>
-            <p><strong>Guests:</strong> ${order.guestCount}</p>
-            <p><strong>Total:</strong> ${formatCurrency(order.total)}</p>
-        </div>
-        <p><strong>Notes:</strong> ${order.notes || 'None'}</p>
-        <button class="show-items-btn" data-order-id="${order.orderId}">
-            Show Items
-        </button>
+            <h3>Order #${order.orderId}</h3>
+            <div class="order-info">
+                <p><strong>Table:</strong> ${order.tableNumber}</p>
+                <p><strong>Server:</strong> ${order.serverName}</p>
+                <p><strong>Guests:</strong> ${order.guestCount}</p>
+                <p><strong>Total:</strong> ${formatCurrency(order.total)}</p>
+            </div>
+            <p><strong>Notes:</strong> ${order.notes || 'None'}</p>
+            <div class="card-actions">
+                <button class="show-items-btn" data-order-id="${order.orderId}">Show Items</button>
+                <button class="edit-btn" data-order-id="${order.orderId}">Edit</button>
+                <button class="delete-btn" data-order-id="${order.orderId}">Delete</button>
+            </div>
         `;
 
-        const btn = card.querySelector('.show-items-btn');
-        btn.addEventListener('click', () => {
-            const orderId = parseInt(btn.dataset.orderId);
-            this.showItemsView(orderId);
+        const showItemsBtn = card.querySelector('.show-items-btn');
+        showItemsBtn.addEventListener('click', () => {
+            const orderId = parseInt(showItemsBtn.dataset.orderId);
+            this.showOrderItemsView(orderId);
         });
-
+        
+        const editBtn = card.querySelector('.edit-btn');
+        editBtn.addEventListener('click', () => {
+            const orderId = parseInt(editBtn.dataset.orderId);
+            this.handleEditOrder(orderId);
+        });
+        
+        const deleteBtn = card.querySelector('.delete-btn');
+        deleteBtn.addEventListener('click', () => {
+            const orderId = parseInt(deleteBtn.dataset.orderId);
+            this.handleDeleteOrder(orderId);
+        });
+        
         return card;
+    }
+
+    async handleEditOrder(orderId) {
+        const order = this.orders.find(o => o.orderId === orderId);
+        
+        if (!order) {
+            showError('Order not found');
+            return;
+        }
+
+        const newTableNumber = prompt('Enter new table number:', order.tableNumber);
+        const newServerName = prompt('Enter new server name:', order.serverName);
+        const newGuestCount = prompt('Enter new guest count:', order.guestCount);
+        const newNotes = prompt('Enter new notes:', order.notes || '');
+        
+        if (newTableNumber === null) return;
+        
+        const updatedOrder = {
+            ...order,
+            tableNumber: parseInt(newTableNumber),
+            serverName: newServerName,
+            guestCount: parseInt(newGuestCount),
+            notes: newNotes || null
+        };
+        
+        try {
+            await updateOrder(orderId, updatedOrder);
+            alert('Order updated successfully!');
+            this.loadAndShowOrders();
+        } catch (error) {
+            showError('Failed to update order.');
+        }
+    }
+
+    async handleDeleteOrder(orderId) {
+        const order = this.orders.find(o => o.orderId === orderId);
+        
+        if (!order) {
+            showError('Order not found');
+            return;
+        }
+        
+        const confirmed = confirm(`Are you sure you want to delete Order #${orderId}?`);
+        
+        if (!confirmed) return;
+        
+        try {
+            await deleteOrder(orderId);
+            alert('Order deleted successfully!');
+            this.loadAndShowOrders();
+        } catch (error) {
+            showError('Failed to delete order.');
+        }
     }
 
     renderOrderDetails(orderId) {
         const order = this.orders.find(o => o.orderId === orderId);
-
+        
         if (!order) {
             this.orderInfoContainer.innerHTML = '<p>Order not found</p>';
             return;
         }
-
+        
         this.orderInfoContainer.innerHTML = `
-        <div class="order-detail-box">
-            <h3>Order #${order.orderId}</h3>
-            <p><strong>Table:</strong> ${order.tableNumber}</p>
-            <p><strong>Server:</strong> ${order.serverName}</p>
-            <p><strong>Guests:</strong> ${order.guestCount}</p>
-            <p><strong>Total:</strong> ${formatCurrency(order.total)}</p>
-            <p><strong>Notes:</strong> ${order.notes || 'None'}</p>
-        </div>
+            <div class="order-detail-box">
+                <h3>Order #${order.orderId}</h3>
+                <p><strong>Table:</strong> ${order.tableNumber}</p>
+                <p><strong>Server:</strong> ${order.serverName}</p>
+                <p><strong>Guests:</strong> ${order.guestCount}</p>
+                <p><strong>Total:</strong> ${formatCurrency(order.total)}</p>
+                <p><strong>Notes:</strong> ${order.notes || 'None'}</p>
+            </div>
         `;
     }
 
-    renderItems(items) {
-        this.itemsContainer.innerHTML = '';
-
+    renderOrderItems(items) {
+        this.orderItemsContainer.innerHTML = '';
+        
         if (items.length === 0) {
-            this.itemsContainer.innerHTML = '<p>No items found for this order.</p>';
+            this.orderItemsContainer.innerHTML = '<p>No items found for this order.</p>';
             return;
         }
-
+        
         items.forEach(item => {
             const itemCard = this.createItemCard(item);
-            this.itemsContainer.appendChild(itemCard);
+            this.orderItemsContainer.appendChild(itemCard);
+        });
+    }
+
+    renderAllItems() {
+        this.allItemsContainer.innerHTML = '';
+        
+        if (this.items.length === 0) {
+            this.allItemsContainer.innerHTML = '<p>No items found.</p>';
+            return;
+        }
+        
+        this.items.forEach(item => {
+            const itemCard = this.createItemCard(item);
+            this.allItemsContainer.appendChild(itemCard);
         });
     }
 
     createItemCard(item) {
         const card = createElement('div', 'item-card');
-
+        
         card.innerHTML = `
-        <h4>${item.itemName}</h4>
-        <p><strong>Quantity:</strong> ${item.itemQuantity}</p>
-        <p><strong>Item Price:</strong> ${formatCurrency(item.itemPrice)}</p>
-        ${item.sides ? `<p><strong>Sides:</strong> ${item.sides}</p>` : ''}
-        ${item.sidePrice ? `<p><strong>Side Price:</strong> ${formatCurrency(item.sidePrice)}</p>` : ''}
-        <p><strong>Item Total:</strong> ${formatCurrency(item.itemTotal)}</p>
-        ${item.modifiers ? `<p><strong>Modifiers:</strong> ${item.modifiers}</p>` : ''}
+            <h4>${item.itemName}</h4>
+            <p><strong>Order ID:</strong> ${item.orderId}</p>
+            <p><strong>Quantity:</strong> ${item.itemQuantity}</p>
+            <p><strong>Item Price:</strong> ${formatCurrency(item.itemPrice)}</p>
+            ${item.sides ? `<p><strong>Sides:</strong> ${item.sides}</p>` : ''}
+            ${item.sidePrice ? `<p><strong>Side Price:</strong> ${formatCurrency(item.sidePrice)}</p>` : ''}
+            <p><strong>Item Total:</strong> ${formatCurrency(item.itemTotal)}</p>
+            ${item.modifiers ? `<p><strong>Modifiers:</strong> ${item.modifiers}</p>` : ''}
         `;
-
+        
         return card;
     }
 }

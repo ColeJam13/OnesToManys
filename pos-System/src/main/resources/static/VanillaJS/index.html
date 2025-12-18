@@ -13,7 +13,25 @@
 <!-- LANDING VIEW -->
     <div id="landingView" class="view">
         <div class="landing-container">
-            <button id="showOrdersBtn" class="primary-btn">Show Orders</button>
+            <div class="action-section">
+                <h2>Orders</h2>
+                <div class="button-group">
+                    <button id="showAllOrdersBtn" class="action-btn">Show All Orders</button>
+                    <button id="addOrderBtn" class="action-btn">Add Order</button>
+                    <button id="editOrderBtn" class="action-btn">Edit Order</button>
+                    <button id="deleteOrderBtn" class="action-btn">Delete Order</button>
+                </div>
+            </div>
+
+            <div class="action-section">
+                <h2>Items</h2>
+                <div class="button-group">
+                    <button id="showAllItemsBtn" class="action-btn">Show All Items</button>
+                    <button id="addItemBtn" class="action-btn">Add Item</button>
+                    <button id="editItemBtn" class="action-btn">Edit Item</button>
+                    <button id="deleteItemBtn" class="action-btn">Delete Item</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -28,21 +46,52 @@
         </div>
     </div>
 
-    <!-- ITEMS VIEW -->
-    <div id="itemsView" class="view hidden">
+    <div id="orderItemsView" class="view hidden">
         <div class="container">
-            <button id="backToOrdersBtn" class="back-btn"> Back to Orders</button>
-            <h2>Order Details</h2>
+            <button id="backToOrdersBtn" class="back-btn">Back to Orders</button>
+            <h2> Order Details</h2>
             <div id="orderInfoContainer">
                 <!-- ORDER INFO HERE -->
             </div>
             <h3>Items</h3>
-            <div id="itemsContainer">
-                <!-- ITEMS HERE -->
+            <div id="orderItemsContainer">
+                <!-- ITEMS FOR ORDER HERE -->
             </div>
         </div>
     </div>
 
+    <div id="allItemsView" class="view hidden">
+        <div class="container">
+            <button is="backToHomeFromItemsBtn" class="back-btn">Back to Home</button>
+            <h2>All Items</h2>
+            <div id="allItemsContainer">
+                <!-- ALL ITEMS HERE -->
+            </div>
+        </div>
+    </div>
+
+    <div id="addOrderView" class="view hidden">
+        <div class="container">
+            <button id="backToHomeFromAddOrderButton" class="back-btn">Back to Home</button>
+            <h2>Add New Order</h2>
+            <form id="addOrderForm" class="form-container">
+                <div class="form-group">
+                    <label for="tableNumber">Table Number:</label>
+                    <input type="number" id="tableNumber" required>
+                </div>
+                <div class="form-group">
+                    <label for="serverName">Server Name:</label>
+                    <input type="text" id="serverName" required>
+                </div>
+                <div class="form-group">
+                    <label for="notes">Notes:</label>
+                    <textarea id="notes" rows="3"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Create Order</button>
+            </form>
+        </div>
+    </div>
+
     <script type="module" src="app.js"></script>
-</body>
-</html>
+    </body>
+    </html>

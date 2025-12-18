@@ -49,3 +49,62 @@ export async function fetchAllData() {
         console.error('Error fetching data:', error);
     }
 }
+
+export async function createOrder(orderData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/orders`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(orderData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to create order: ${response.status}`);
+        }
+
+        const createdOrder = await response.json();
+        return createdOrder;
+    } catch (error) {
+        console.error('Error creating order:', error);
+        throw error;
+    }
+}
+
+export async function updateOrder(orderId, orderData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body:JSON.stringify(orderData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to update order: ${response.status}`);
+        }
+
+        const updateOrder = await response.json();
+        return updatedOrder;
+    } catch (error) {
+        console.error('Error updating order:', error);
+        throw error;
+    }
+}
+
+export async function deleteOrder(orderId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to delete order: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Error deleting order:', error);
+        throw error;
+    }
+}
