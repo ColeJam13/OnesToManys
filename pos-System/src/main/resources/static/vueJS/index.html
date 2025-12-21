@@ -6,7 +6,8 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-
+</head>
+<body>
     <div id="app">
         <header>
             <h1 class="main-title">Nota-Pos</h1>
@@ -38,7 +39,7 @@
                 <div v-if="isLoading" class="loading-indicator">Loading...</div>
                 <div v-else-if="orders.length === 0"><p>No orders found.</p></div>
                 <div v-else>
-                    <div v-for="orders in orders" :key="order.orderId" class="order-card">
+                    <div v-for="order in orders" :key="order.orderId" class="order-card">
                         <h3>Order #{{ order.orderId }}</h3>
                         <div class="order-info">
                             <p><strong>Table:</strong> {{ order.tableNumber }}</p>
@@ -64,7 +65,7 @@
                 <div v-if="selectedOrder" class="order-detail-box">
                     <h3>Order #{{ selectedOrder.orderId }}</h3>
                     <p><strong>Table:</strong> {{ selectedOrder.tableNumber }}</p>
-                    <p><strong>Server:</strong> {{ selectOrder.serverName }}</p>
+                    <p><strong>Server:</strong> {{ selectedOrder.serverName }}</p>
                     <p><strong>Guests:</strong> {{ selectedOrder.guestCount }}</p>
                     <p><strong>Total:</strong> {{ formatCurrency(selectedOrder.total) }}</p>
                     <p><strong>Notes:</strong> {{ selectedOrder.notes || 'None' }}</p>
@@ -160,7 +161,15 @@
                         <input type="number" step="0.01" id="itemPrice" v-model.number="newItem.itemPrice" required>
                     </div>
                     <div class="form-group">
+                        <label for="sides">Sides (optional):</label>
+                        <input type="text" id="sides" v-model="newItem.sides">
+                    </div>
+                    <div class="form-group">
                         <label for="sidePrice">Side Price (optional):</label>
+                        <input type="number" step="0.01" id="sidePrice" v-model.number="newItem.sidePrice">
+                    </div>
+                    <div class="form-group">
+                        <label for="modifiers">Modifiers (optional):</label>
                         <textarea id="modifiers" rows="2" v-model="newItem.modifiers"></textarea>
                     </div>
                     <button type="submit" class="submit-btn">Create Item</button>
@@ -169,5 +178,5 @@
         </div>
     </div>
     <script type="module" src="app.js"></script>
-</head>
+</body>
 </html>
